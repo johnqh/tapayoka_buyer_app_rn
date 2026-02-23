@@ -1,0 +1,15 @@
+{
+  "name": "tapayoka_buyer_app_rn",
+  "displayName": "Tapayoka",
+  "expo": {
+    "name": "Tapayoka",
+    "slug": "tapayoka",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "plugins": [
+      "expo-camera",
+      ["@stripe/stripe-react-native", { "enableGooglePay": true }]
+    ]
+  }
+}
