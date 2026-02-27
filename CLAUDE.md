@@ -2,19 +2,100 @@
 
 Buyer native app for iOS/Android. QR scanning, BLE device communication, Stripe payment, authorization relay.
 
-## Stack: Expo + React Native + TypeScript
+**Package**: `tapayoka_buyer_app_rn` (private)
+
+## Tech Stack
+
+- **Language**: TypeScript (JSX)
+- **Runtime**: React Native 0.81 + Expo ~54
+- **Package Manager**: Bun (do not use npm/yarn/pnpm for installing dependencies)
+- **Navigation**: React Navigation 7 (Bottom Tabs + Native Stack)
+- **State**: Zustand 5
+- **Data Fetching**: TanStack Query 5
+- **Auth**: Firebase Auth with AsyncStorage persistence, Google Sign-In
+- **i18n**: i18next
+- **Test**: Jest
+- **Bundler**: Metro (port 8086)
 
 ## Commands
 
 ```bash
-npm install
-npm start             # Metro bundler (port 8086)
-npm run android
-npm run ios
-npm run typecheck
-npm run lint
-npm test
+bun install
+bun run start             # Metro bundler (port 8086)
+bun run android
+bun run ios
+bun run typecheck
+bun run lint
+bun test
+bun run verify            # typecheck + lint + test
 ```
+
+## Key Features
+
+- QR code scanning (expo-camera)
+- BLE device communication (react-native-ble-plx)
+- Stripe payment (@stripe/stripe-react-native)
+- Order history
+- Firebase authentication (platform-specific)
+
+## Project Structure
+
+```
+src/
+├── polyfills/
+│   └── localStorage.ts              # localStorage polyfill for Zustand persist
+├── config/
+│   ├── constants.ts                  # App name, languages, storage keys, tab names
+│   ├── env.ts                        # Environment variable reader
+│   └── theme.ts                      # Theme configuration
+├── context/
+│   ├── index.ts
+│   ├── AuthContext.tsx                # Desktop: Firebase JS SDK
+│   ├── AuthContext.ios.tsx            # iOS: @react-native-firebase/auth
+│   ├── AuthContext.android.tsx        # Android: @react-native-firebase/auth
+│   └── ApiContext.tsx                 # API client + QueryClient provider
+├── stores/
+│   ├── index.ts
+│   └── settingsStore.ts              # Settings persisted via Zustand + AsyncStorage
+├── hooks/
+│   └── useAppColors.ts               # Theme-aware color hook
+├── i18n/
+│   └── index.ts                      # i18next setup with react-native-localize
+├── navigation/
+│   └── AppNavigator.tsx              # Bottom tabs (Scan stack, History, Settings)
+├── screens/
+│   ├── SplashScreen.tsx
+│   ├── scan/ScanScreen.tsx
+│   ├── scan/DeviceScreen.tsx
+│   ├── scan/PaymentScreen.tsx
+│   ├── scan/ActiveServiceScreen.tsx
+│   ├── history/OrderHistoryScreen.tsx
+│   └── settings/SettingsScreen.tsx
+├── services/
+│   ├── ble/DeviceProtocol.ts         # BLE scanning & device communication
+│   └── googleAuth.ts                 # PKCE OAuth flow for desktop
+├── native/
+│   └── WebAuth.ts                    # Native module bridge for desktop auth
+└── di/
+    ├── initializeServices.ts         # Desktop: no-op
+    ├── initializeServices.ios.ts     # iOS: @sudobility/di_rn + auth_lib
+    └── initializeServices.android.ts # Android: @sudobility/di_rn + auth_lib
+```
+
+## Path Alias
+
+`@/*` resolves to `src/*` via both `tsconfig.json` and `babel-plugin-module-resolver`.
+
+## Environment Variables
+
+Via `react-native-config` (EXPO_PUBLIC_* prefix):
+
+| Variable | Description |
+|----------|-------------|
+| `EXPO_PUBLIC_API_URL` | Backend API URL |
+| `EXPO_PUBLIC_FIREBASE_API_KEY` | Firebase API key |
+| `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase auth domain |
+| `EXPO_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project ID |
 
 ## Core Flow
 
@@ -25,3 +106,9 @@ npm test
 5. Get signed authorization from server
 6. Relay authorization to device via BLE
 7. Show countdown timer
+
+## Gotchas
+
+- The prestart script merges `.env` files -- environment changes require restarting Metro (port 8086)
+- The `localStorage` polyfill must be imported before any Zustand persist store is created
+- Firebase Auth uses `AsyncStorage` for persistence
