@@ -8,6 +8,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'react-native-localize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { APP_NAME, COMPANY_NAME } from '../config/constants';
 
 const SUPPORTED_LANGUAGES = [
   'en', 'ar', 'de', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', 'sv', 'th', 'uk', 'vi', 'zh', 'zh-Hant',
@@ -29,7 +30,7 @@ const resources = {
       scan: {
         title: 'Scan QR',
         cameraPreview: 'Camera Preview',
-        hint: 'Point at a QR code on a Tapayoka device',
+        hint: `Point at a QR code on a ${APP_NAME} device`,
         simulateScan: 'Simulate Scan',
       },
       device: {
@@ -67,7 +68,7 @@ const resources = {
         notifications: 'Notifications',
         about: 'About',
         version: 'Version 0.0.1',
-        copyright: '2024 Sudobility',
+        copyright: `2024 ${COMPANY_NAME}`,
       },
       auth: {
         signIn: 'Sign In',

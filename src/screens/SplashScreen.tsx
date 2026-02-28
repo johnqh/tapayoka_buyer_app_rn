@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, useColorScheme, ActivityIndicator } from 'react-native';
+import { APP_NAME } from '../config/constants';
 
 export default function SplashScreen() {
   const colorScheme = useColorScheme();
@@ -8,7 +9,7 @@ export default function SplashScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
-      <Text style={[styles.title, { color: textColor }]}>Tapayoka</Text>
+      <Text style={[styles.title, { color: textColor }]}>{APP_NAME}</Text>
       <ActivityIndicator size="large" color="#2563eb" style={styles.spinner} />
     </View>
   );
