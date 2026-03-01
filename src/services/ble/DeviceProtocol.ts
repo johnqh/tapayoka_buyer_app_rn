@@ -38,3 +38,12 @@ export async function sendAuthorization(
   // TODO: Write AUTHORIZE command to BLE_CHAR_COMMAND_UUID
   return false;
 }
+
+export async function sendCommand(
+  _deviceId: string,
+  _command: string,
+  _payload?: Record<string, unknown>,
+): Promise<{ status: string; message?: string; data?: string } | null> {
+  // TODO: Write command to BLE_CHAR_COMMAND_UUID, listen on BLE_CHAR_RESPONSE_UUID
+  return null;
+}

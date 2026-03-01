@@ -1,12 +1,27 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { sendCommand } from '@/services/ble';
 
 export function PaymentScreen({ route, navigation }: { route: any; navigation: any }) {
-  const { serviceName, priceCents, walletAddress } = route.params;
+  const { serviceName, priceCents, deviceId, seconds } = route.params;
+  const [paying, setPaying] = useState(false);
 
-  const handlePay = () => {
-    // TODO: Stripe payment sheet, then get signed authorization from server
-    navigation.navigate('ActiveService', { walletAddress, seconds: 1800, serviceName });
+  const handlePay = async () => {
+    setPaying(true);
+    try {
+      // TODO: Stripe payment → server signs authorization → sendAuthorization()
+      // For local dev testing: send ON command directly to activate the relay
+      const result = await sendCommand(deviceId, 'ON', { seconds });
+      if (result?.status === 'OK') {
+        navigation.navigate('ActiveService', { deviceId, seconds, serviceName });
+      } else {
+        Alert.alert('Activation failed', result?.message ?? 'No response from device.');
+      }
+    } catch (e) {
+      Alert.alert('Error', String(e));
+    } finally {
+      setPaying(false);
+    }
   };
 
   return (
@@ -16,8 +31,12 @@ export function PaymentScreen({ route, navigation }: { route: any; navigation: a
         <Text style={styles.serviceName}>{serviceName}</Text>
         <Text style={styles.price}>${(priceCents / 100).toFixed(2)}</Text>
       </View>
-      <TouchableOpacity style={styles.payButton} onPress={handlePay}>
-        <Text style={styles.payButtonText}>Pay ${(priceCents / 100).toFixed(2)}</Text>
+      <TouchableOpacity style={styles.payButton} onPress={handlePay} disabled={paying}>
+        {paying ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.payButtonText}>Pay ${(priceCents / 100).toFixed(2)}</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -26,9 +45,20 @@ export function PaymentScreen({ route, navigation }: { route: any; navigation: a
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#f9fafb' },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 24 },
-  card: { backgroundColor: '#fff', borderRadius: 12, padding: 24, alignItems: 'center', marginBottom: 32 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 24,
+    alignItems: 'center',
+    marginBottom: 32,
+  },
   serviceName: { fontSize: 18, marginBottom: 8 },
   price: { fontSize: 36, fontWeight: 'bold', color: '#2563eb' },
-  payButton: { backgroundColor: '#2563eb', padding: 18, borderRadius: 12, alignItems: 'center' },
+  payButton: {
+    backgroundColor: '#2563eb',
+    padding: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
   payButtonText: { color: '#fff', fontSize: 18, fontWeight: '600' },
 });
